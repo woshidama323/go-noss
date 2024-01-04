@@ -4,6 +4,9 @@ import (
 	"bytes"
 	"context"
 	"crypto/rand"
+	"errors"
+	"os"
+
 	"encoding/json"
 	"fmt"
 	"log"
@@ -12,32 +15,73 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/gorilla/websocket"
+	"github.com/nbd-wtf/go-nostr"
+	"github.com/nbd-wtf/go-nostr/nip13"
+
+	"github.com/joho/godotenv"
 	"github.com/urfave/cli/v2"
 )
+
+var sk string
+var pk string
+var numberOfWorkers int
+var nonceFound int32 = 0
+var blockNumber uint64
+var hash string
+var messageId string
+var currentWorkers int32
+var arbRpcUrl string
+var (
+	ErrDifficultyTooLow = errors.New("nip13: insufficient difficulty")
+	ErrGenerateTimeout  = errors.New("nip13: generating proof of work took too long")
+)
+
+func init() {
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	sk = os.Getenv("sk")
+	pk = os.Getenv("pk")
+	numberOfWorkers, _ = strconv.Atoi(os.Getenv("numberOfWorkers"))
+	arbRpcUrl = os.Getenv("arbRpcUrl")
+}
 
 var DaemonCmd = &cli.Command{
 	Name:  "daemon",
 	Usage: "run backend",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
-			Name:  "type",
-			Usage: "specify key type to create",
-			Value: "bls",
+			Name:  "rpcurl",
+			Usage: "trb rpc url",
+			Value: "https://arb1.arbitrum.io/rpc",
+		},
+		&cli.StringFlag{
+			Name:  "noscriptionWss",
+			Usage: "noscription wss url",
+			Value: "wss://report-worker-2.noscription.org",
+		},
+		&cli.StringFlag{
+			Name:  "pk",
+			Usage: "private key",
+			Value: "x",
 		},
 	},
 	Action: func(cctx *cli.Context) error {
-		wssAddr := "wss://report-worker-2.noscription.org"
+		// wssAddr := "wss://report-worker-2.noscription.org"
 		// relayUrl := "wss://relay.noscription.org/"
+
+		//
 		ctx := context.Background()
-
-		var err error
-
-		client, err := ethclient.Dial(arbRpcUrl)
+		client, err := ethclient.Dial(cctx.String("rpcurl"))
 		if err != nil {
 			log.Fatalf("无法连接到Arbitrum节点: %v", err)
 		}
 
-		c, err := connectToWSS(wssAddr)
+		c, err := connectToWSS(cctx.String("noscriptionWss"))
 		if err != nil {
 			panic(err)
 		}
