@@ -131,6 +131,7 @@ var DaemonCmd = &cli.Command{
 			for {
 				select {
 				case <-ctx.Done(): // 如果上下文被取消，则退出协程
+					fmt.Println("exit now")
 					return
 				default:
 					if atomic.LoadInt32(&currentWorkers) < int32(numberOfWorkers) {

@@ -2,6 +2,10 @@ package cmd
 
 import (
 	"github.com/urfave/cli/v2"
+	"github.com/nbd-wtf/go-nostr"
+	
+	"github.com/nbd-wtf/go-nostr/nip19"
+	"fmt"
 )
 
 var White []string
@@ -27,6 +31,15 @@ var CreateKeyCmd = &cli.Command{
 	},
 
 	Action: func(cctx *cli.Context) error {
+		sk := nostr.GeneratePrivateKey()
+		pk, _ := nostr.GetPublicKey(sk)
+		nsec, _ := nip19.EncodePrivateKey(sk)
+		npub, _ := nip19.EncodePublicKey(pk)
+	
+		fmt.Println("sk:", sk)
+		fmt.Println("pk:", pk)
+		fmt.Println(nsec)
+		fmt.Println(npub)
 		return nil
 	},
 }
