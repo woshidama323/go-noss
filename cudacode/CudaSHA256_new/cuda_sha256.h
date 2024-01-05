@@ -1,0 +1,1 @@
+void hashString(char *str, size_t len, unsigned char *digest);
