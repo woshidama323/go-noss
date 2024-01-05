@@ -11,7 +11,7 @@
 #include "sha256.cuh"
 #include <dirent.h>
 #include <ctype.h>
-
+#include <cuda_runtime.h>
 char * trim(char *str){
     size_t len = 0;
     char *frontp = str;
@@ -133,7 +133,7 @@ void print_usage(){
 }
 
 extern "C" {
-    void hashString(char *str, size_t len, unsigned char *digest) {
+    void hashStringOld(char *str, size_t len, unsigned char *digest) {
         // Convert the string to a BYTE array or use it directly if it's already a BYTE array
         BYTE *byte_str = (BYTE *)str;
 
@@ -151,6 +151,54 @@ extern "C" {
 
         // Cleanup
         cudaFree(job);
+    }
+}
+
+extern "C" {
+    void hashStrings(char **strs, int num_strs, unsigned char **digests) {
+        JOB **jobs;
+        checkCudaErrors(cudaMallocManaged(&jobs, num_strs * sizeof(JOB *)));
+
+        for (int i = 0; i < num_strs; i++) {
+            size_t len = strlen(strs[i]); // Length of the string
+            BYTE *byte_str;
+            checkCudaErrors(cudaMallocManaged(&byte_str, (len + 1) * sizeof(BYTE)));
+
+	    memcpy(byte_str, strs[i], len);
+
+            jobs[i] = JOB_init(byte_str, len, strs[i]);
+        }
+
+        pre_sha256();  // Preprocessing, if required
+        runJobs(jobs, num_strs); // Run jobs
+        cudaDeviceSynchronize(); // Synchronize
+
+        // Copy the results to digests
+        for (int i = 0; i < num_strs; i++) {
+             checkCudaErrors(cudaMallocManaged(&(digests[i]), 64 * sizeof(unsigned char))); // Assuming 64 bytes for SHA-256
+             memset(digests[i], 0, 64 * sizeof(unsigned char));
+	     memcpy(digests[i], jobs[i]->digest, 64);
+             // 打印日志信息
+             printf("Hash for string %d: ", i);
+             for (int j = 0; j < 32; j++) {
+                   printf("%02x", digests[i][j]); // 以十六进制格式打印每个字节
+             }
+    	     printf("\n");
+	}
+
+        // Cleanup
+        for (int i = 0; i < num_strs; i++) {
+            cudaFree(jobs[i]->data);
+            cudaFree(jobs[i]);
+        }
+        cudaFree(jobs);
+	for (int i = 0; i < num_strs; i++) {
+            printf("Hash %s: ", digests[i]);
+            for (int j = 0; j < 64; j++) { // 假设每个哈希值是64字节
+                printf("%02x", digests[i][j]); // 以十六进制打印每个字节
+            }
+            printf("\n");
+        }
     }
 }
 

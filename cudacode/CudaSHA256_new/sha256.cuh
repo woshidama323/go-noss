@@ -1,6 +1,11 @@
 #ifndef SHA256_H
 #define SHA256_H
-
+#include <stdint.h>
+#ifndef __CUDACC__
+#define __device__
+#define __global__
+#define __constant__
+#endif
 
 /****************************** MACROS ******************************/
 #define SHA256_BLOCK_SIZE 32            // SHA256 outputs a 32 byte digest
