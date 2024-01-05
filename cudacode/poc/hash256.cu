@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <openssl/sha.h>
+#include "sha256.cuh"
 
 __global__ void hash256(unsigned char *input, unsigned char *output, int num_elements) {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
