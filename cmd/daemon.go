@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/rand"
 	"errors"
+	"github.com/ethereum/go-ethereum/core/types"
 	"os"
 
 	"encoding/json"
@@ -32,7 +33,7 @@ var blockNumber uint64
 var hash string
 var messageId string
 var currentWorkers int32
-var arbRpcUrl string
+var arbRpcUrls []string
 var (
 	ErrDifficultyTooLow = errors.New("nip13: insufficient difficulty")
 	ErrGenerateTimeout  = errors.New("nip13: generating proof of work took too long")
@@ -47,7 +48,26 @@ func init() {
 	sk = os.Getenv("sk")
 	pk = os.Getenv("pk")
 	numberOfWorkers, _ = strconv.Atoi(os.Getenv("numberOfWorkers"))
-	arbRpcUrl = os.Getenv("arbRpcUrl")
+	arbRpcUrls = []string{
+		"https://arbitrum.llamarpc.com",
+		"https://rpc.arb1.arbitrum.gateway.fm",
+		"https://api.zan.top/node/v1/arb/one/public",
+		"https://arbitrum.meowrpc.com",
+		"https://arb-pokt.nodies.app",
+		"https://arbitrum.blockpi.network/v1/rpc/public",
+		"https://arbitrum-one.publicnode.com",
+		"https://arbitrum-one.public.blastapi.io",
+		"https://arbitrum.drpc.org",
+		"https://arb1.arbitrum.io/rpc",
+		"https://endpoints.omniatech.io/v1/arbitrum/one/public",
+		"https://1rpc.io/arb",
+		"https://rpc.ankr.com/arbitrum",
+		"https://arbitrum.api.onfinality.io/public",
+		"wss://arbitrum-one.publicnode.com",
+		"https://arb-mainnet-public.unifra.io",
+		"https://arb-mainnet.g.alchemy.com/v2/demo",
+		"https://arbitrum.getblock.io/api_key/mainnet",
+	}
 }
 
 var DaemonCmd = &cli.Command{
@@ -75,11 +95,7 @@ var DaemonCmd = &cli.Command{
 		// relayUrl := "wss://relay.noscription.org/"
 
 		//
-		ctx := context.Background()
-		client, err := ethclient.Dial(cctx.String("rpcurl"))
-		if err != nil {
-			log.Fatalf("无法连接到Arbitrum节点: %v", err)
-		}
+		ctx := cctx.Context
 
 		c, err := connectToWSS(cctx.String("noscriptionWss"))
 		if err != nil {
@@ -87,15 +103,79 @@ var DaemonCmd = &cli.Command{
 		}
 		defer c.Close()
 
-		// initialize an empty cancel function
+		// 初始化所有的链接
+		clients := make([]*ethclient.Client, len(arbRpcUrls))
+		checkClient := func() {
+			for k, c := range clients {
+				if c != nil {
+					continue
+				}
+				rurl := arbRpcUrls[k]
+				client, err := ethclient.Dial(rurl)
+				if err != nil {
+					log.Printf("无法连接到Arbitrum节点(%s): %v", rurl, err)
+					continue
+				}
+
+				clients[k] = client
+			}
+		}
+
+		// 先初始化一下所有的rpc
+		go func() {
+			for {
+				checkClient()
+				time.Sleep(10 * time.Second)
+			}
+		}()
+
+		count := 0
+		getClinet := func() *ethclient.Client {
+			countOld := count
+			for {
+				count++
+				count = count % len(arbRpcUrls)
+				if count == countOld {
+					return nil
+				}
+
+				client := clients[count]
+				if client == nil {
+					continue
+				}
+				//fmt.Println("获得client: ", count)
+
+				return client
+			}
+		}
+
+		ch := make(chan *types.Header, 5)
+		defer close(ch)
 
 		// get block
 		go func() {
 			for {
-				header, err := client.HeaderByNumber(context.Background(), nil)
-				if err != nil {
-					log.Fatalf("无法获取最新区块号: %v", err)
-				}
+				go func() {
+					client := getClinet()
+					if client == nil {
+						return
+					}
+					header, err := client.HeaderByNumber(context.Background(), nil)
+					if err != nil {
+						client = nil
+						fmt.Println("无法获取最新区块号")
+						return
+					}
+					fmt.Println("获取最新区块号")
+					ch <- header
+
+				}()
+				time.Sleep(500 * time.Millisecond)
+			}
+		}()
+
+		go func() {
+			for header := range ch {
 				if header.Number.Uint64() >= blockNumber {
 					hash = header.Hash().Hex()
 					blockNumber = header.Number.Uint64()
@@ -138,7 +218,7 @@ var DaemonCmd = &cli.Command{
 						atomic.AddInt32(&currentWorkers, 1) // 增加工作者数量
 						go func(bn uint64, mid string) {
 							defer atomic.AddInt32(&currentWorkers, -1) // 完成后减少工作者数量
-							mine(ctx, mid, client)
+							mine(ctx, mid, getClinet())
 						}(blockNumber, messageId)
 					}
 				}
