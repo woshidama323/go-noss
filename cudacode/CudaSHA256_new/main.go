@@ -119,7 +119,7 @@ func main() {
 	//随机1000次
 	var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 
-	ranNonce := []string{}
+	// ranNonce := []string{}
 	ranSerial := []string{}
 	for i := 0; i < 1000; i++ {
 		rand.Seed(time.Now().UnixNano())
