@@ -2,34 +2,12 @@ package utils
 
 import (
 	"context"
-	"math/big"
 	"nostr/logger"
 	"sync"
 	"time"
 
 	"github.com/ethereum/go-ethereum/ethclient"
 )
-
-var ArbRpcUrls = []string{
-	"https://arbitrum.llamarpc.com",
-	"https://rpc.arb1.arbitrum.gateway.fm",
-	"https://api.zan.top/node/v1/arb/one/public",
-	"https://arbitrum.meowrpc.com",
-	"https://arb-pokt.nodies.app",
-	"https://arbitrum.blockpi.network/v1/rpc/public",
-	"https://arbitrum-one.publicnode.com",
-	"https://arbitrum-one.public.blastapi.io",
-	"https://arbitrum.drpc.org",
-	"https://arb1.arbitrum.io/rpc",
-	"https://endpoints.omniatech.io/v1/arbitrum/one/public",
-	"https://1rpc.io/arb",
-	"https://rpc.ankr.com/arbitrum",
-	"https://arbitrum.api.onfinality.io/public",
-	"wss://arbitrum-one.publicnode.com",
-	"https://arb-mainnet-public.unifra.io",
-	"https://arb-mainnet.g.alchemy.com/v2/demo",
-	"https://arbitrum.getblock.io/api_key/mainnet",
-}
 
 type ConnectManager struct {
 	Ethclient []*ethclient.Client
@@ -76,21 +54,21 @@ func (c *ConnectManager) GetBlockInfo() {
 		go func(wg *sync.WaitGroup) {
 
 			for {
-				blockNumber, err := client.BlockNumber(context.Background())
+				header, err := client.HeaderByNumber(context.Background(), nil)
 				if err != nil {
 					logger.GLogger.Error("get BlockNumber error:", err)
 					time.Sleep(1 * time.Second)
 					continue
 				}
-				block, err := client.BlockByNumber(context.Background(), big.NewInt(int64(blockNumber)))
-				if err != nil {
-					logger.GLogger.Error("get block hash error:", err)
-					time.Sleep(1 * time.Second)
-					continue
-				}
+				// block, err := client.BlockByNumber(context.Background(), big.NewInt(int64(blockNumber)))
+				// if err != nil {
+				// 	logger.GLogger.Error("get block hash error:", err)
+				// 	time.Sleep(1 * time.Second)
+				// 	continue
+				// }
 				c.BlockChan <- &BlockInfo{
-					BlockNumber: blockNumber,
-					BlockHash:   block.Hash().String(),
+					BlockNumber: header.Number.Uint64(),
+					BlockHash:   header.Hash().String(),
 				}
 			}
 
