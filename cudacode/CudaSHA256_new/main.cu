@@ -179,7 +179,7 @@ extern "C" {
              memset(digests[i], 0, 64 * sizeof(unsigned char));
 	     memcpy(digests[i], jobs[i]->digest, 64);
              // 打印日志信息
-             printf("Hash for string %d: ", i);
+             printf("Hash for string %d: \n", i);
              for (int j = 0; j < 32; j++) {
                    printf("%02x", digests[i][j]); // 以十六进制格式打印每个字节
              }

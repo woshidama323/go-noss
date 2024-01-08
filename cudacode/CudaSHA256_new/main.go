@@ -134,7 +134,7 @@ func main() {
 		ranTest := nostr.Event{
 			Kind:      1,
 			CreatedAt: 1704575164,
-			Tags:      nostr.Tags{{"p", "9be107b0d7218c67b4954ee3e6bd9e4dba06ef937a93f684e42f730a0c3d053c"}, {"e", "51ed7939a984edee863bfbb2e66fdc80436b000a8ddca442d83e6a2bf1636a95", "wss://relay.noscription.org/", "root"}, {"e", "00000571cb4fabce45e915cce67ec468051d550847f166137fd8aea8615bcd8c", "wss://relay.noscription.org/", "reply"}, {"seq_witness", "167798002", "0xec4bb82180016b3e050cc9c5deceb672e360bfb251e7543c6323348d1505d99e"}, {"nonce", fmt.Sprintf("%s", ""), "21"}},
+			Tags:      nostr.Tags{{"p", "9be107b0d7218c67b4954ee3e6bd9e4dba06ef937a93f684e42f730a0c3d053c"}, {"e", "51ed7939a984edee863bfbb2e66fdc80436b000a8ddca442d83e6a2bf1636a95", "wss://relay.noscription.org/", "root"}, {"e", "00000571cb4fabce45e915cce67ec468051d550847f166137fd8aea8615bcd8c", "wss://relay.noscription.org/", "reply"}, {"seq_witness", "167798002", "0xec4bb82180016b3e050cc9c5deceb672e360bfb251e7543c6323348d1505d99e"}, {"nonce", fmt.Sprintf("%s", string(b)), "21"}},
 			Content:   "{\"p\":\"nrc-20\",\"op\":\"mint\",\"tick\":\"noss\",\"amt\":\"10\"}",
 			PubKey:    "66313c9225464c64e8cbab0d48b16a9b5a25f206e00bb79371b684743aa9d288",
 		}
