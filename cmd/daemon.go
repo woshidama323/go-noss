@@ -23,6 +23,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/urfave/cli/v2"
+	"github.com/sirupsen/logrus"
 )
 
 var sk string
@@ -40,6 +41,12 @@ var (
 )
 
 func init() {
+
+	logrus.SetFormatter(&logrus.TextFormatter{
+		FullTimestamp: true, // Enable timestamp
+		ForceColors:   true, // Force colored output even when stdout is not a terminal
+
+	})
 
 	err := godotenv.Load()
 	if err != nil {
@@ -336,18 +343,22 @@ func mine(ctx context.Context, messageId string, client *ethclient.Client) {
 	select {
 	case evNew := <-foundEvent:
 
-		fmt.Println("evNew: ", evNew.ID)
+		logrus.Info("evNew: ", evNew.ID)
+		tmpID := evNew.ID
 		evNew.Sign(sk)
-		fmt.Println("evNew after: ", evNew.ID)
+		logrus.Info("evNew after: ", evNew.ID)
 		evNewInstance := EV{
 			Sig:       evNew.Sig,
-			Id:        evNew.ID,
+			Id:        tmpID,
 			Kind:      evNew.Kind,
 			CreatedAt: evNew.CreatedAt,
 			Tags:      evNew.Tags,
 			Content:   evNew.Content,
 			PubKey:    evNew.PubKey,
 		}
+
+		fmt.Printf("evNewInstance: %+v\n", evNewInstance)
+		
 		// 将ev转为Json格式
 		eventJSON, err := json.Marshal(evNewInstance)
 		if err != nil {
@@ -365,14 +376,37 @@ func mine(ctx context.Context, messageId string, client *ethclient.Client) {
 		}
 
 		url := "https://api-worker.noscription.org/inscribe/postEvent"
+
+
 		req, err := http.NewRequest("POST", url, bytes.NewBuffer(wrapperJSON))
 		if err != nil {
 			log.Fatalf("Error creating request: %v", err)
 		}
 
 		// 设置HTTP Header
-		req.Header.Set("Content-Type", "application/json")
 
+		req.Header.Set("authority", "api-worker.noscription.org")
+		req.Header.Set("accept", "application/json, text/plain, */*")
+		req.Header.Set("accept-language", "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7")
+		req.Header.Set("content-type", "application/json")
+		req.Header.Set("origin", "https://noscription.org")
+		req.Header.Set("referer", "https://noscription.org/")
+	
+		req.Header.Set("user-agent", "Mozilla/5.0 (Macintosh;c Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+		req.Header.Set("x-gorgon", "ac880d214ba2fb1d4ee63a47f2e26f52917f04b25955c218bf78f6b4f94bc85b")
+	  
+
+		for name, values := range req.Header {
+			// Header中的值是一个字符串切片
+			for _, value := range values {
+				logrus.Infof("%v: %v\n", name, value)
+				
+			}
+		}
+
+		logrus.Info(string(wrapperJSON))
+
+		
 		// 发送请求
 		client := &http.Client{}
 		resp, err := client.Do(req)
@@ -384,6 +418,7 @@ func mine(ctx context.Context, messageId string, client *ethclient.Client) {
 		fmt.Println("Response Status:", resp.Status)
 		spendTime := time.Since(startTime)
 		// fmt.Println("Response Body:", string(body))
+
 		fmt.Println(nostr.Now().Time(), "spend: ", spendTime, "!!!!!!!!!!!!!!!!!!!!!published to:", evNewInstance.Id)
 		atomic.StoreInt32(&nonceFound, 0)
 	case <-ctx.Done():

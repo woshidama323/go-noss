@@ -17,6 +17,7 @@ func main() {
 	app.Commands = []*cli.Command{
 		cmd.KeysCmd,
 		cmd.DaemonCmd,
+		cmd.TestCmd,
 	}
 	// run the app
 	if err := app.Run(os.Args); err != nil {
