@@ -93,11 +93,10 @@ func formatCDigests(cDigests unsafe.Pointer, numStrs int) []string {
 		// 使用 fmt.Sprintf 构建每个哈希值的十六进制字符串表示
 		hashStr := ""
 		for _, b := range hashSlice {
-			hashStr = fmt.Sprintf("%02x", b)
+			hashStr += fmt.Sprintf("%02x", b)
 		}
 
 		// 将格式化的哈希字符串添加到切片中
-		fmt.Printf("Hello Hash %s: ", hashStr)
 		formattedHashes[i] = hashStr
 	}
 	fmt.Printf("Hello formattedHashes %+v: ", formattedHashes)
@@ -175,11 +174,5 @@ var GPUCmd = &cli.Command{
 				continue
 			}
 		}
-
-		//test log leng
-		// fmt.Println("ranNonce len:", len(ranSerial))
-		// GPUID := HashStrings(ranSerial)
-		// fmt.Println("GPU ID:", GPUID)
-		return nil
 	},
 }
