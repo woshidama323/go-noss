@@ -10,7 +10,7 @@ import "C"
 import (
 	"fmt"
 	"math/rand"
-	"nostro/utils"
+	"nostr/utils"
 	"time"
 	"unsafe"
 
