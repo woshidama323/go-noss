@@ -8,7 +8,10 @@ package main
 */
 import "C"
 import (
+	"math/rand"
+	"time"
 	"unsafe"
+
 	//"time"
 	//"encoding/hex"
 	"fmt"
@@ -111,20 +114,55 @@ func formatCDigests(cDigests unsafe.Pointer, numStrs int) []string {
 
 func main() {
 
-	foundEvent := nostr.Event{
-		Kind:      1,
-		CreatedAt: 1704575164,
-		Tags:      nostr.Tags{{"p", "9be107b0d7218c67b4954ee3e6bd9e4dba06ef937a93f684e42f730a0c3d053c"}, {"e", "51ed7939a984edee863bfbb2e66fdc80436b000a8ddca442d83e6a2bf1636a95", "wss://relay.noscription.org/", "root"}, {"e", "00000571cb4fabce45e915cce67ec468051d550847f166137fd8aea8615bcd8c", "wss://relay.noscription.org/", "reply"}, {"seq_witness", "167798002", "0xec4bb82180016b3e050cc9c5deceb672e360bfb251e7543c6323348d1505d99e"}, {"nonce", "ctlqrejf99", "21"}},
-		Content:   "{\"p\":\"nrc-20\",\"op\":\"mint\",\"tick\":\"noss\",\"amt\":\"10\"}",
-		PubKey:    "66313c9225464c64e8cbab0d48b16a9b5a25f206e00bb79371b684743aa9d288",
+	//random a string with 10 length from a-z0-9
+
+	//随机1000次
+	var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+
+	ranNonce := []string{}
+	ranSerial := []string{}
+	for i := 0; i < 1000; i++ {
+		rand.Seed(time.Now().UnixNano())
+
+		b := make([]rune, 10)
+		for i := range b {
+			b[i] = letterRunes[rand.Intn(len(letterRunes))]
+		}
+		fmt.Println("random nonce:", string(b))
+		// ranNonce = append(ranNonce, string(b))
+
+		ranTest := nostr.Event{
+			Kind:      1,
+			CreatedAt: 1704575164,
+			Tags:      nostr.Tags{{"p", "9be107b0d7218c67b4954ee3e6bd9e4dba06ef937a93f684e42f730a0c3d053c"}, {"e", "51ed7939a984edee863bfbb2e66fdc80436b000a8ddca442d83e6a2bf1636a95", "wss://relay.noscription.org/", "root"}, {"e", "00000571cb4fabce45e915cce67ec468051d550847f166137fd8aea8615bcd8c", "wss://relay.noscription.org/", "reply"}, {"seq_witness", "167798002", "0xec4bb82180016b3e050cc9c5deceb672e360bfb251e7543c6323348d1505d99e"}, {"nonce", fmt.Sprintf("%s", ""), "21"}},
+			Content:   "{\"p\":\"nrc-20\",\"op\":\"mint\",\"tick\":\"noss\",\"amt\":\"10\"}",
+			PubKey:    "66313c9225464c64e8cbab0d48b16a9b5a25f206e00bb79371b684743aa9d288",
+		}
+
+		ranSerial = append(ranSerial, string(ranTest.Serialize()))
+
 	}
 
-	foundEvent.GetID()
+	//test log leng
+	fmt.Println("ranNonce len:", len(ranSerial))
+
+	// foundEvent := nostr.Event{
+	// 	Kind:      1,
+	// 	CreatedAt: 1704575164,
+	// 	Tags:      nostr.Tags{{"p", "9be107b0d7218c67b4954ee3e6bd9e4dba06ef937a93f684e42f730a0c3d053c"}, {"e", "51ed7939a984edee863bfbb2e66fdc80436b000a8ddca442d83e6a2bf1636a95", "wss://relay.noscription.org/", "root"}, {"e", "00000571cb4fabce45e915cce67ec468051d550847f166137fd8aea8615bcd8c", "wss://relay.noscription.org/", "reply"}, {"seq_witness", "167798002", "0xec4bb82180016b3e050cc9c5deceb672e360bfb251e7543c6323348d1505d99e"}, {"nonce", "ctlqrejf99", "21"}},
+	// 	Content:   "{\"p\":\"nrc-20\",\"op\":\"mint\",\"tick\":\"noss\",\"amt\":\"10\"}",
+	// 	PubKey:    "66313c9225464c64e8cbab0d48b16a9b5a25f206e00bb79371b684743aa9d288",
+	// }
 
 	// foundEvent.Sign("710155b5a9e39097669893d132b0a34b7302e78f2a9d75fcd304bf7951eeb878")
 
-	GPUID := HashStrings([]string{string(foundEvent.Serialize())})
+	// foundEvent.Sign("710155b5a9e39097669893d132b0a34b7302e78f2a9d75fcd304bf7951eeb878")
+	// GPUID := HashStrings([]string{string(foundEvent.Serialize())})
 
+	// fmt.Println("GPU ID:", GPUID)
+	// fmt.Println("CPU ID:", foundEvent.GetID())
+
+	GPUID := HashStrings(ranSerial)
 	fmt.Println("GPU ID:", GPUID)
-	fmt.Println("CPU ID:", foundEvent.GetID())
+
 }
