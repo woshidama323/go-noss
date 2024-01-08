@@ -17,6 +17,7 @@ func main() {
 	app.Commands = []*cli.Command{
 		cmd.KeysCmd,
 		cmd.DaemonCmd,
+		cmd.GPUCmd,
 		cmd.TestCmd,
 	}
 	// run the app
