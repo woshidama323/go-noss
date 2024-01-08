@@ -1,11 +1,12 @@
 package cmd
 
 import (
-	"github.com/urfave/cli/v2"
 	"github.com/nbd-wtf/go-nostr"
-	
-	"github.com/nbd-wtf/go-nostr/nip19"
+	"github.com/urfave/cli/v2"
+
 	"fmt"
+
+	"github.com/nbd-wtf/go-nostr/nip19"
 )
 
 var White []string
@@ -35,7 +36,7 @@ var CreateKeyCmd = &cli.Command{
 		pk, _ := nostr.GetPublicKey(sk)
 		nsec, _ := nip19.EncodePrivateKey(sk)
 		npub, _ := nip19.EncodePublicKey(pk)
-	
+
 		fmt.Println("sk:", sk)
 		fmt.Println("pk:", pk)
 		fmt.Println(nsec)

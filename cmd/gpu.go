@@ -10,6 +10,7 @@ import "C"
 import (
 	"fmt"
 	"math/rand"
+	"nostro/utils"
 	"time"
 	"unsafe"
 
@@ -52,28 +53,7 @@ func HashStrings(inputs []string) []string {
 	C.hashStrings((**C.char)(cstrs), numStrs, (**C.uchar)(cDigests))
 
 	//output := make([]string, numStrs)
-	printCDigests(cDigests, len(inputs))
 	return formatCDigests(cDigests, len(inputs))
-}
-
-func printCDigests(cDigests unsafe.Pointer, numStrs int) {
-	// 将 cDigests 转换为指向指针数组的指针
-	digestPtrs := (*[1 << 30]*C.uchar)(cDigests)
-
-	for i := 0; i < numStrs; i++ {
-		// 获取第 i 个哈希值的指针
-		digestPtr := digestPtrs[i]
-
-		// 创建一个指向相应哈希值的字节切片
-		hashSlice := (*[32]byte)(unsafe.Pointer(digestPtr))[:32:32]
-
-		// 打印哈希值的十六进制表示
-		fmt.Printf("Harry Hash %d: ", i)
-		for _, b := range hashSlice {
-			fmt.Printf("%02x", b)
-		}
-		fmt.Println()
-	}
 }
 
 func formatCDigests(cDigests unsafe.Pointer, numStrs int) []string {
@@ -174,5 +154,41 @@ var GPUCmd = &cli.Command{
 				continue
 			}
 		}
+	},
+}
+
+var CreateEventCmd = &cli.Command{
+	Name:  "createEvent",
+	Usage: "createEvent for create evnt",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:  "rpcurl",
+			Usage: "trb rpc url",
+			Value: "https://arb1.arbitrum.io/rpc",
+		},
+		&cli.StringFlag{
+			Name:  "noscriptionWss",
+			Usage: "noscription wss url",
+			Value: "wss://report-worker-2.noscription.org",
+		},
+		&cli.StringFlag{
+			Name:  "pk",
+			Usage: "private key",
+			Value: "x",
+		},
+		&cli.IntFlag{
+			Name:  "num",
+			Usage: "num times",
+			Value: 1000,
+		},
+	},
+	Action: func(cctx *cli.Context) error {
+
+		eMan := utils.NewEventMan(10)
+
+		go eMan.Run()
+
+		eMan.HashCalculate()
+		return nil
 	},
 }

@@ -19,6 +19,7 @@ func main() {
 		cmd.DaemonCmd,
 		cmd.GPUCmd,
 		cmd.TestCmd,
+		cmd.CreateEventCmd,
 	}
 	// run the app
 	if err := app.Run(os.Args); err != nil {
