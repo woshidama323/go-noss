@@ -157,19 +157,19 @@ var GPUCmd = &cli.Command{
 			ranSerial = append(ranSerial, string(ranTest.Serialize()))
 
 			if len(ranSerial) > cctx.Int("num") {
-				go func(t []string) {
-					logrus.Info("start GPU hash =================")
-					GPUID := HashStrings(ranSerial)
-					logrus.Warn("end GPU hash =================")
-					//verify hash
-					for i := 0; i < len(GPUID); i++ {
-						if nip13.Difficulty(GPUID[i]) >= 21 {
-							logrus.Info("new Event ID:", GPUID[i])
-						}
+				// go func(t []string) {
+				logrus.Info("start GPU hash =================")
+				GPUID := HashStrings(ranSerial)
+				logrus.Warn("end GPU hash =================")
+				//verify hash
+				for i := 0; i < len(GPUID); i++ {
+					if nip13.Difficulty(GPUID[i]) >= 21 {
+						logrus.Info("new Event ID:", GPUID[i])
 					}
+				}
 
-					fmt.Println("GPU ID:", GPUID)
-				}(ranSerial)
+				fmt.Println("GPU ID:", GPUID)
+				// }(ranSerial)
 
 				ranSerial = []string{}
 				continue
