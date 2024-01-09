@@ -50,8 +50,8 @@ func HashStringsWithGPU(inputs []string) []string {
 
 	for i, s := range inputs {
 		cs := C.CString(s)
-		defer C.free(unsafe.Pointer(cs))
 		*(*uintptr)(unsafe.Pointer(uintptr(cstrs) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = uintptr(unsafe.Pointer(cs))
+		defer C.free(unsafe.Pointer(cs))
 	}
 
 	digests := make([][]byte, numStrs)

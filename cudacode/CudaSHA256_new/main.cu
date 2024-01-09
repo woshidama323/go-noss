@@ -79,14 +79,16 @@ void runJobs(JOB ** jobs, int n){
 JOB * JOB_init(BYTE * data, long size, char * fname) {
         JOB * j;
         checkCudaErrors(cudaMallocManaged(&j, sizeof(JOB)));    //j = (JOB *)malloc(sizeof(JOB));
-        checkCudaErrors(cudaMallocManaged(&(j->data), size));
+        // checkCudaErrors(cudaMallocManaged(&(j->data), size));
         j->data = data;
         j->size = size;
         for (int i = 0; i < 64; i++)
         {
                 j->digest[i] = 0xff;
         }
-        strcpy(j->fname, fname);
+        // strcpy(j->fname, fname);
+        strncpy(j->fname, fname, 256);
+        j->fname[FNAME_SIZE - 1] = '\0'; // 确保字符串结尾
         return j;
 }
 
@@ -157,11 +159,12 @@ extern "C" {
 extern "C" {
     void hashStrings(char **strs, int num_strs, unsigned char **digests) {
         JOB **jobs;
+        BYTE *byte_str;
         checkCudaErrors(cudaMallocManaged(&jobs, num_strs * sizeof(JOB *)));
         //printf("checkpoint 1 \n");
         for (int i = 0; i < num_strs; i++) {
             size_t len = strlen(strs[i]); // Length of the string
-            BYTE *byte_str;
+            
             //printf("checkpoint 11 \n");
             checkCudaErrors(cudaMallocManaged(&byte_str, (len + 1) * sizeof(BYTE)));
         //     //printf("checkpoint 12 \n");
