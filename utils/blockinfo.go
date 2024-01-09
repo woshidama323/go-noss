@@ -45,44 +45,41 @@ func (c *ConnectManager) Connect() {
 	}
 }
 
-func (c *ConnectManager) GetBlockInfo() {
-
-	wg := sync.WaitGroup{}
-
+func (c *ConnectManager) GetBlockInfo(wg *sync.WaitGroup) {
 	for _, client := range c.Ethclient {
 
-		wg.Add(1)
-		go func(wg *sync.WaitGroup) {
+		// wg.Add(1)
+		// go func(wg *sync.WaitGroup) {
 
-			for {
-				header, err := client.HeaderByNumber(context.Background(), nil)
-				if err != nil {
-					logger.GLogger.Error("get BlockNumber error:", err)
-					time.Sleep(1 * time.Second)
-					continue
-				}
-				// block, err := client.BlockByNumber(context.Background(), big.NewInt(int64(blockNumber)))
-				// if err != nil {
-				// 	logger.GLogger.Error("get block hash error:", err)
-				// 	time.Sleep(1 * time.Second)
-				// 	continue
-				// }
-				// c.BlockChan <- &BlockInfo{
-				// 	BlockNumber: header.Number.Uint64(),
-				// 	BlockHash:   header.Hash().String(),
-				// }
-				c.BlockChan <- ChanType{
-					Datatype: "block",
-					Data: &BlockInfo{
-						BlockNumber: header.Number.Uint64(),
-						BlockHash:   header.Hash().String(),
-					},
-				}
+		for {
+			header, err := client.HeaderByNumber(context.Background(), nil)
+			if err != nil {
+				logger.GLogger.Error("get BlockNumber error:", err)
+				time.Sleep(1 * time.Second)
+				continue
 			}
+			// block, err := client.BlockByNumber(context.Background(), big.NewInt(int64(blockNumber)))
+			// if err != nil {
+			// 	logger.GLogger.Error("get block hash error:", err)
+			// 	time.Sleep(1 * time.Second)
+			// 	continue
+			// }
+			// c.BlockChan <- &BlockInfo{
+			// 	BlockNumber: header.Number.Uint64(),
+			// 	BlockHash:   header.Hash().String(),
+			// }
+			c.BlockChan <- ChanType{
+				Datatype: "block",
+				Data: &BlockInfo{
+					BlockNumber: header.Number.Uint64(),
+					BlockHash:   header.Hash().String(),
+				},
+			}
+		}
 
-			wg.Done()
+		wg.Done()
 
-		}(&wg)
+		// }(&wg)
 
 	}
 
