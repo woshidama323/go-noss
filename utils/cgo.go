@@ -56,7 +56,7 @@ func HashStringsWithGPU(inputs []string) []string {
 
 	digests := make([][]byte, numStrs)
 	for i := range digests {
-		digests[i] = make([]byte, 64) // SHA-256 hash size
+		digests[i] = make([]byte, 32) // SHA-256 hash size
 		*(*uintptr)(unsafe.Pointer(uintptr(cDigests) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = uintptr(unsafe.Pointer(&digests[i][0]))
 	}
 
