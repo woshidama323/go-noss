@@ -159,12 +159,12 @@ extern "C" {
 extern "C" {
     void hashStrings(char **strs, int num_strs, unsigned char **digests) {
         JOB **jobs;
-        BYTE *byte_str;
+        
         checkCudaErrors(cudaMallocManaged(&jobs, num_strs * sizeof(JOB *)));
         //printf("checkpoint 1 \n");
         for (int i = 0; i < num_strs; i++) {
             size_t len = strlen(strs[i]); // Length of the string
-            
+            BYTE *byte_str;
             //printf("checkpoint 11 \n");
             checkCudaErrors(cudaMallocManaged(&byte_str, (len + 1) * sizeof(BYTE)));
         //     //printf("checkpoint 12 \n");
