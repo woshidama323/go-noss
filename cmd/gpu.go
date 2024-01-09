@@ -184,7 +184,7 @@ var CreateEventCmd = &cli.Command{
 	},
 	Action: func(cctx *cli.Context) error {
 
-		eMan := utils.NewEventMan(10)
+		eMan := utils.NewEventMan(cctx.Int("num"))
 
 		go eMan.Run()
 

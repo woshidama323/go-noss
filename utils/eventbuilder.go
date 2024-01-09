@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/nbd-wtf/go-nostr"
+	"github.com/nbd-wtf/go-nostr/nip13"
 )
 
 type EventMan struct {
@@ -87,9 +88,20 @@ func (e *EventMan) HashCalculate() {
 		forHashString = append(forHashString, string(ev.Serialize()))
 		if len(forHash) > e.Num {
 
-			logger.GLogger.Info("len(forHash) > e.Num", len(forHash))
+			// logger.GLogger.Info("len(forHash) > e.Num", len(forHash))
 			hashGPU := HashStringsWithGPU(forHashString)
 			logger.GLogger.Info("hashGPU:", hashGPU[0])
+
+			//verify hash
+			go func() {
+				for i := 0; i < len(hashGPU); i++ {
+					if nip13.Difficulty(hashGPU[i]) >= 21 {
+
+						logger.GLogger.Info("new Event ID:", hashGPU[i])
+						//send event to noscription
+					}
+				}
+			}()
 
 		}
 
