@@ -12,3 +12,8 @@ nvcc main.cu
 or
 nvprof ./a.out <some test file> <another test file> ...
 ```
+
+### build
+```
+sudo nvcc  -Xcompiler -fPIC  -o libcuda_hash.so  --shared main.cu -I/usr/local/cuda/include -L/usr/local/cuda/lib64 -lcudart
+```

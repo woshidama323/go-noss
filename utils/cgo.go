@@ -35,7 +35,7 @@ func formatCDigests(cDigests unsafe.Pointer, numStrs int) []string {
 		// 将格式化的哈希字符串添加到切片中
 		formattedHashes[i] = hashStr
 	}
-	fmt.Printf("Hello formattedHashes %+v: ", formattedHashes)
+	// fmt.Printf("Hello formattedHashes %+v: ", formattedHashes)
 	return formattedHashes
 }
 

@@ -114,7 +114,7 @@ func (e *EventMan) HashCalculate() {
 			logger.GLogger.Info("hashGPU:", hashGPU[0])
 
 			//verify hash
-			go func() {
+			go func(input []string) {
 				for i := 0; i < len(hashGPU); i++ {
 					if nip13.Difficulty(hashGPU[i]) >= 21 {
 
@@ -122,7 +122,7 @@ func (e *EventMan) HashCalculate() {
 						//send event to noscription
 					}
 				}
-			}()
+			}(hashGPU)
 
 		}
 
