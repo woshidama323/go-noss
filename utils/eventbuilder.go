@@ -2,6 +2,7 @@ package utils
 
 import (
 	"nostr/logger"
+	"runtime"
 	"strconv"
 	"sync"
 
@@ -80,7 +81,7 @@ func (e *EventMan) AssembleBaseEvent(newNonce, newBlockHash, newPreviousID strin
 }
 
 func (e *EventMan) HashCalculate() {
-
+	runtime.LockOSThread()
 	forHash := []nostr.Event{}
 	forHashString := []string{}
 
@@ -113,6 +114,7 @@ func (e *EventMan) HashCalculate() {
 			hashGPU := HashStringsWithGPU(forHashString)
 			logger.GLogger.Info("hashGPU:", hashGPU[0])
 
+			runtime.LockOSThread()
 			//verify hash
 			// go func(input []string) {
 			for i := 0; i < len(hashGPU); i++ {
@@ -134,4 +136,6 @@ func (e *EventMan) HashCalculate() {
 		}
 
 	}
+
+	runtime.UnlockOSThread()
 }
