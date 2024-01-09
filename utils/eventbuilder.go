@@ -83,10 +83,10 @@ func (e *EventMan) HashCalculate() {
 	forHash := []nostr.Event{}
 	forHashString := []string{}
 
-	nonce := ""
-	blockNumber := 0
-	blockHash := ""
-	previousID := ""
+	nonce := e.NonceMan.Firstnonce
+	blockNumber := e.ConnectMan.FirstBlockInfo.BlockNumber
+	blockHash := e.ConnectMan.FirstBlockInfo.BlockHash
+	previousID := e.EventIDMan.FirstID
 
 	for comData := range e.CommonChan {
 
@@ -94,7 +94,7 @@ func (e *EventMan) HashCalculate() {
 		if comData.Datatype == "nonce" {
 			nonce = comData.Data.(string)
 		} else if comData.Datatype == "blockinfo" {
-			blockNumber = int(comData.Data.(BlockInfo).BlockNumber)
+			blockNumber = uint64(comData.Data.(BlockInfo).BlockNumber)
 			blockHash = comData.Data.(BlockInfo).BlockHash
 		} else if comData.Datatype == "previousid" {
 			previousID = comData.Data.(string)

@@ -15,12 +15,14 @@ type PreviousIDMux struct {
 type EventIDMan struct {
 	PreviesIdChan chan ChanType
 	PreID         PreviousIDMux
+	FirstID       string
 }
 
 func NewEventIDMan(commonChan chan ChanType) *EventIDMan {
 
 	return &EventIDMan{
 		PreviesIdChan: commonChan,
+		FirstID:       "0000004023b58ef98f88dc696269e429cbf3c9062ae1267f4f11a016e2640dbf",
 	}
 }
 

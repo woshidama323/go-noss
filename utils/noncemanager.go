@@ -9,12 +9,14 @@ import (
 )
 
 type NonceMan struct {
-	NonceChan chan ChanType // 通道
+	NonceChan  chan ChanType // 通道
+	Firstnonce string
 }
 
 func NewNonceMan(nonch chan ChanType) *NonceMan {
 	return &NonceMan{
-		NonceChan: nonch,
+		NonceChan:  nonch,
+		Firstnonce: "a123456789",
 	}
 }
 

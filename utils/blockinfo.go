@@ -14,8 +14,9 @@ type ConnectManager struct {
 	BlockChan chan ChanType
 
 	// LatestBlockInfo BlockInfoWithMux
-	BInfo        BlockInfo
-	FlagBlockNum uint64
+	BInfo          BlockInfo
+	FlagBlockNum   uint64
+	FirstBlockInfo BlockInfo
 }
 
 type BlockInfoWithMux struct {
@@ -32,6 +33,10 @@ func NewConnectManager(commonChan chan ChanType) *ConnectManager {
 	return &ConnectManager{
 		Ethclient: make([]*ethclient.Client, 0),
 		BlockChan: commonChan,
+		FirstBlockInfo: BlockInfo{
+			BlockNumber: 18967110,
+			BlockHash:   "0xbfb5f7164f0d09460add41aadc9235b9c32eff8123660ebffc99c31c0d7f82d6",
+		},
 	}
 }
 
