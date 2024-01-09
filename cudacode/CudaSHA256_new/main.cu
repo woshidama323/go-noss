@@ -70,7 +70,7 @@ void pre_sha256() {
 
 
 void runJobs(JOB ** jobs, int n){
-        int blockSize = 4;
+        int blockSize = 1024;
         int numBlocks = (n + blockSize - 1) / blockSize;
         sha256_cuda <<< numBlocks, blockSize >>> (jobs, n);
 }
@@ -168,7 +168,7 @@ extern "C" {
 	    memcpy(byte_str, strs[i], len);
         //     //printf("checkpoint 13 \n");
             jobs[i] = JOB_init(byte_str, len, strs[i]);
-            printf("checkpoint 14 -> %d->%s\n", i, strs[i]);
+            //printf("checkpoint 14 -> %d->%s\n", i, strs[i]);
             cudaFree(byte_str); 
         }
 
