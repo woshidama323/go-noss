@@ -1,7 +1,7 @@
 package utils
 
 /*
-cgo LDFLAGS: -L../ -lcuda_hash -L/usr/local/cuda/lib64 -lcudart
+#cgo LDFLAGS: -L../ -lcuda_hash -L/usr/local/cuda/lib64 -lcudart
 #include <stdlib.h>
 #include "../cgoinclude/cuda_sha256.h"
 */
