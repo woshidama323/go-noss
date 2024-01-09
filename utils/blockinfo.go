@@ -75,7 +75,7 @@ func (c *ConnectManager) GetBlockInfo(wg *sync.WaitGroup) {
 			// }
 			c.BlockChan <- ChanType{
 				Datatype: "block",
-				Data: &BlockInfo{
+				Data: BlockInfo{
 					BlockNumber: header.Number.Uint64(),
 					BlockHash:   header.Hash().String(),
 				},
