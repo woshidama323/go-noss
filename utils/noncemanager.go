@@ -9,10 +9,10 @@ import (
 )
 
 type NonceMan struct {
-	NonceChan chan string // 通道
+	NonceChan chan ChanType // 通道
 }
 
-func NewNonceMan(nonch chan string) *NonceMan {
+func NewNonceMan(nonch chan ChanType) *NonceMan {
 	return &NonceMan{
 		NonceChan: nonch,
 	}
@@ -45,7 +45,12 @@ func (n *NonceMan) GenNonceRun(wg *sync.WaitGroup) {
 		}
 		//check NonceChan is full or not
 		// logger.GLogger.Info("nonce:", nonce)
-		n.NonceChan <- nonce
+
+		n.NonceChan <- ChanType{
+			Datatype: "nonce",
+			Data:     nonce,
+		}
+		// n.NonceChan <- nonce
 	}
 
 	wg.Done()

@@ -8,6 +8,13 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+type ChanType struct {
+	Datatype string // "block" "nonce" "preeventid"
+	Data     any
+}
+
+var commonchan = make(chan ChanType, 1000)
+
 func GenerateRandomString(length int) (string, error) {
 	charset := "abcdefghijklmnopqrstuvwxyz0123456789" // 字符集
 	b := make([]byte, length)

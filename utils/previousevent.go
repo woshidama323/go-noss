@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"nostr/logger"
 	"nostr/types"
 	"sync"
 )
@@ -14,14 +13,14 @@ type PreviousIDMux struct {
 	PreviesId string
 }
 type EventIDMan struct {
-	PreviesIdChan chan string
+	PreviesIdChan chan ChanType
 	PreID         PreviousIDMux
 }
 
-func NewEventIDMan() *EventIDMan {
+func NewEventIDMan(commonChan chan ChanType) *EventIDMan {
 
 	return &EventIDMan{
-		PreviesIdChan: make(chan string, 100),
+		PreviesIdChan: commonChan,
 	}
 }
 
@@ -61,27 +60,31 @@ func (g *EventIDMan) GetPreviousID(wg *sync.WaitGroup, url string) {
 			continue
 		}
 
-		g.PreviesIdChan <- messageDecode.EventId
+		// g.PreviesIdChan <- messageDecode.EventId
+		g.PreviesIdChan <- ChanType{
+			Datatype: "previousid",
+			Data:     messageDecode.EventId,
+		}
 	}
 
 	wg.Done()
 
 }
 
-func (g *EventIDMan) GetPreviousIDFromChan() {
+// func (g *EventIDMan) GetPreviousIDFromChan() {
 
-	forDup := ""
-	for id := range g.PreviesIdChan {
-		logger.GLogger.Info("get previous id:", id)
+// 	forDup := ""
+// 	for id := range g.PreviesIdChan {
+// 		logger.GLogger.Info("get previous id:", id)
 
-		if forDup == id {
-			continue
-		} else {
-			g.PreID.Lock()
-			g.PreID.PreviesId = id
-			g.PreID.Unlock()
-			forDup = id
+// 		if forDup == id {
+// 			continue
+// 		} else {
+// 			g.PreID.Lock()
+// 			g.PreID.PreviesId = id
+// 			g.PreID.Unlock()
+// 			forDup = id
 
-		}
-	}
-}
+// 		}
+// 	}
+// }

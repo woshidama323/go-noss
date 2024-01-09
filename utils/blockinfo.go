@@ -11,10 +11,11 @@ import (
 
 type ConnectManager struct {
 	Ethclient []*ethclient.Client
-	BlockChan chan *BlockInfo
+	BlockChan chan ChanType
 
-	LatestBlockInfo BlockInfoWithMux
-	FlagBlockNum    uint64
+	// LatestBlockInfo BlockInfoWithMux
+	BInfo        BlockInfo
+	FlagBlockNum uint64
 }
 
 type BlockInfoWithMux struct {
@@ -26,11 +27,11 @@ type BlockInfo struct {
 	BlockHash   string
 }
 
-func NewConnectManager() *ConnectManager {
+func NewConnectManager(commonChan chan ChanType) *ConnectManager {
 
 	return &ConnectManager{
 		Ethclient: make([]*ethclient.Client, 0),
-		BlockChan: make(chan *BlockInfo, 100),
+		BlockChan: commonChan,
 	}
 }
 
@@ -66,9 +67,16 @@ func (c *ConnectManager) GetBlockInfo() {
 				// 	time.Sleep(1 * time.Second)
 				// 	continue
 				// }
-				c.BlockChan <- &BlockInfo{
-					BlockNumber: header.Number.Uint64(),
-					BlockHash:   header.Hash().String(),
+				// c.BlockChan <- &BlockInfo{
+				// 	BlockNumber: header.Number.Uint64(),
+				// 	BlockHash:   header.Hash().String(),
+				// }
+				c.BlockChan <- ChanType{
+					Datatype: "block",
+					Data: &BlockInfo{
+						BlockNumber: header.Number.Uint64(),
+						BlockHash:   header.Hash().String(),
+					},
 				}
 			}
 
@@ -80,25 +88,4 @@ func (c *ConnectManager) GetBlockInfo() {
 
 	wg.Wait()
 
-}
-
-func (c *ConnectManager) SetLatestBlockInfo(binfo *BlockInfo) {
-
-	for blockFlow := range c.BlockChan {
-
-		//TODO multiple blocks at the same time
-		c.LatestBlockInfo.Lock()
-		c.LatestBlockInfo.Binfo = *blockFlow
-		c.LatestBlockInfo.Unlock()
-	}
-	c.LatestBlockInfo.Binfo = *binfo
-
-	c.LatestBlockInfo.Unlock()
-}
-func (c *ConnectManager) GetLatestBlockInfo() *BlockInfo {
-
-	c.LatestBlockInfo.RLock()
-
-	defer c.LatestBlockInfo.RUnlock()
-	return &c.LatestBlockInfo.Binfo
 }

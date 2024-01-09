@@ -13,7 +13,7 @@ type EventMan struct {
 	ConnectMan *ConnectManager
 	EventIDMan *EventIDMan
 	Num        int
-	NonceChan  chan string
+	CommonChan chan ChanType
 
 	UnsignedEvent nostr.Event
 }
@@ -21,17 +21,17 @@ type EventMan struct {
 // func NewEventMan(nonceMan NonceMan, connectMan ConnectManager, preEventMan EventIDMan, num int) *EventMan {
 func NewEventMan(num int) *EventMan {
 
-	nonChan := make(chan string, 1000)
-	nonceMan := NewNonceMan(nonChan)
-	connectMan := NewConnectManager()
-	preEventMan := NewEventIDMan()
+	commonChan := make(chan ChanType, 1000)
+	nonceMan := NewNonceMan(commonChan)
+	connectMan := NewConnectManager(commonChan)
+	preEventMan := NewEventIDMan(commonChan)
 
 	return &EventMan{
 		NonceMan:   nonceMan,
 		ConnectMan: connectMan,
 		EventIDMan: preEventMan,
 		Num:        num,
-		NonceChan:  nonChan,
+		CommonChan: commonChan,
 	}
 }
 
@@ -48,12 +48,18 @@ func (e *EventMan) Run() {
 	e.ConnectMan.GetBlockInfo()
 
 	wg.Add(1)
-	go e.EventIDMan.GetPreviousID(&wg, "wss://arb-mainnet.g.alchemy.com/v2/demo")
+	go e.EventIDMan.GetPreviousID(&wg, "wss://report-worker-2.noscription.org")
 
 	wg.Wait()
 }
 
-func (e *EventMan) AssembleBaseEvent(newNonce string) nostr.Event {
+func (e *EventMan) AssembleBaseEvent(newNonce, newBlockHash, newPreviousID string, blockNumber int64) nostr.Event {
+
+	// nonce := ""
+	// blockNumber := 0
+	// blockHash := ""
+	// previousID := ""
+
 	event := nostr.Event{
 		Content:   "{\"p\":\"nrc-20\",\"op\":\"mint\",\"tick\":\"noss\",\"amt\":\"10\"}",
 		CreatedAt: nostr.Now(),
@@ -65,8 +71,8 @@ func (e *EventMan) AssembleBaseEvent(newNonce string) nostr.Event {
 	}
 	event.Tags = event.Tags.AppendUnique(nostr.Tag{"p", "9be107b0d7218c67b4954ee3e6bd9e4dba06ef937a93f684e42f730a0c3d053c"})
 	event.Tags = event.Tags.AppendUnique(nostr.Tag{"e", "51ed7939a984edee863bfbb2e66fdc80436b000a8ddca442d83e6a2bf1636a95", WSURL, "root"})
-	event.Tags = event.Tags.AppendUnique(nostr.Tag{"e", e.EventIDMan.PreID.PreviesId, WSURL, "reply"})
-	event.Tags = event.Tags.AppendUnique(nostr.Tag{"seq_witness", string(e.ConnectMan.GetLatestBlockInfo().BlockNumber), e.ConnectMan.GetLatestBlockInfo().BlockHash})
+	event.Tags = event.Tags.AppendUnique(nostr.Tag{"e", newPreviousID, WSURL, "reply"})
+	event.Tags = event.Tags.AppendUnique(nostr.Tag{"seq_witness", string(blockNumber), newBlockHash})
 	event.Tags = event.Tags.AppendUnique(nostr.Tag{"nonce", newNonce, "21"})
 
 	return event
@@ -76,19 +82,33 @@ func (e *EventMan) HashCalculate() {
 
 	forHash := []nostr.Event{}
 	forHashString := []string{}
-	for nonce := range e.NonceChan {
-		// fmt.Println("nonce:", nonce)
 
-		logger.GLogger.Info("nonce:", nonce)
+	nonce := ""
+	blockNumber := 0
+	blockHash := ""
+	previousID := ""
 
-		//assemble event
+	for comData := range e.CommonChan {
 
-		ev := e.AssembleBaseEvent(nonce)
-		forHash = append(forHash, e.AssembleBaseEvent(nonce))
+		logger.GLogger.Info("comData:", comData)
+		if comData.Datatype == "nonce" {
+			nonce = comData.Data.(string)
+		} else if comData.Datatype == "blockinfo" {
+			blockNumber = int(comData.Data.(BlockInfo).BlockNumber)
+			blockHash = comData.Data.(BlockInfo).BlockHash
+		} else if comData.Datatype == "previousid" {
+			previousID = comData.Data.(string)
+		}
+		if nonce == "" || blockNumber == 0 || blockHash == "" || previousID == "" {
+			continue
+		}
+
+		ev := e.AssembleBaseEvent(nonce, blockHash, previousID, int64(blockNumber))
+		forHash = append(forHash, ev)
 		forHashString = append(forHashString, string(ev.Serialize()))
 		if len(forHash) > e.Num {
 
-			// logger.GLogger.Info("len(forHash) > e.Num", len(forHash))
+			logger.GLogger.Info("len(forHash) > e.Num", len(forHash))
 			hashGPU := HashStringsWithGPU(forHashString)
 			logger.GLogger.Info("hashGPU:", hashGPU[0])
 
