@@ -4,12 +4,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// print the time
+
 func init() {
 
 	logrus.SetFormatter(&logrus.TextFormatter{
-		FullTimestamp: true, // Enable timestamp
-		ForceColors:   true, // Force colored output even when stdout is not a terminal
-
+		FullTimestamp:   true, // Enable timestamp
+		TimestampFormat: "2006-01-02 15:04:05",
+		ForceColors:     true, // Force colored output even when stdout is not a terminal
 	})
 
 }
