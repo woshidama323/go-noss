@@ -91,7 +91,7 @@ func (e *EventMan) HashCalculate() {
 
 	for comData := range e.CommonChan {
 
-		logger.GLogger.Info("comData:", comData)
+		// logger.GLogger.Info("comData:", comData)
 		if comData.Datatype == "nonce" {
 			nonce = comData.Data.(string)
 		} else if comData.Datatype == "blockinfo" {
