@@ -5,6 +5,7 @@ import (
 	"runtime"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/nbd-wtf/go-nostr"
 	"github.com/nbd-wtf/go-nostr/nip13"
@@ -130,6 +131,8 @@ func (e *EventMan) HashCalculate() {
 					//send event to noscription
 				}
 			}
+
+			time.Sleep(3 * time.Second)
 			// }(hashGPU)
 
 			forHashString = []string{}
