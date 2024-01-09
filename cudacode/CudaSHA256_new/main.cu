@@ -63,6 +63,17 @@ __global__ void sha256_cuda(JOB ** jobs, int n) {
         }
 }
 
+__global__ void sha256_cuda_simple(char** data,char** digest, int n) {
+        int i = blockIdx.x * blockDim.x + threadIdx.x;
+        // perform sha256 calculation here
+        if (i < n){
+                SHA256_CTX ctx;
+                sha256_init(&ctx);
+                sha256_update(&ctx, data[i], strlen(data[i]));
+                sha256_final(&ctx, digest[i]);
+        }
+}
+
 void pre_sha256() {
         // compy symbols
         checkCudaErrors(cudaMemcpyToSymbol(dev_k, host_k, sizeof(host_k), 0, cudaMemcpyHostToDevice));
@@ -210,7 +221,6 @@ extern "C" {
 
 extern "C" {
     void hashTest(char **strs, int num_strs, unsigned char **digests) {
-        char** cpystrs;
         char** hashes;
         cudaMallocManaged(&strs, num_strs * sizeof(char*));
         cudaMallocManaged(&hashes, num_strs * sizeof(char*));
@@ -224,7 +234,7 @@ extern "C" {
         // 调用GPU进行并行处理
         int blockSize = 256;
         int numBlocks = (num_strs + blockSize - 1) / blockSize;
-        sha256_cuda<<<numBlocks, blockSize>>>(strs, hashes, num_strs);
+        sha256_cuda_simple<<<numBlocks, blockSize>>>(strs, hashes, num_strs);
 
         // 等待GPU处理完成
         cudaDeviceSynchronize();
