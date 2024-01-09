@@ -94,7 +94,7 @@ func (e *EventMan) HashCalculate() {
 		// logger.GLogger.Info("comData:", comData)
 		if comData.Datatype == "nonce" {
 			nonce = comData.Data.(string)
-		} else if comData.Datatype == "blockinfo" {
+		} else if comData.Datatype == "block" {
 			blockNumber = uint64(comData.Data.(BlockInfo).BlockNumber)
 			blockHash = comData.Data.(BlockInfo).BlockHash
 		} else if comData.Datatype == "previousid" {
@@ -114,21 +114,21 @@ func (e *EventMan) HashCalculate() {
 			logger.GLogger.Info("hashGPU:", hashGPU[0])
 
 			//verify hash
-			go func(input []string) {
-				for i := 0; i < len(hashGPU); i++ {
-					logger.GLogger.Debugln("hashGPU[i]:", hashGPU[i])
-					if nip13.Difficulty(hashGPU[i]) >= 21 {
+			// go func(input []string) {
+			for i := 0; i < len(hashGPU); i++ {
+				logger.GLogger.Debugln("hashGPU[i]:", hashGPU[i])
+				if nip13.Difficulty(hashGPU[i]) >= 21 {
 
-						logger.GLogger.Info("new Event ID:", hashGPU[i])
-						forHash[i].ID = hashGPU[i]
-						forHash[i].Sign("710155b5a9e39097669893d132b0a34b7302e78f2a9d75fcd304bf7951eeb878")
-						logger.GLogger.Info("new Event ID:", forHash[i].GetID())
+					logger.GLogger.Info("new Event ID:", hashGPU[i])
+					forHash[i].ID = hashGPU[i]
+					forHash[i].Sign("710155b5a9e39097669893d132b0a34b7302e78f2a9d75fcd304bf7951eeb878")
+					logger.GLogger.Info("new Event ID:", forHash[i].GetID())
 
-						forHash = []nostr.Event{}
-						//send event to noscription
-					}
+					forHash = []nostr.Event{}
+					//send event to noscription
 				}
-			}(hashGPU)
+			}
+			// }(hashGPU)
 
 			forHashString = []string{}
 		}
