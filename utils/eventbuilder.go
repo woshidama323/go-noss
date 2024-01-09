@@ -105,11 +105,11 @@ func (e *EventMan) HashCalculate() {
 		}
 
 		ev := e.AssembleBaseEvent(nonce, blockHash, previousID, int64(blockNumber))
-		forHash = append(forHash, ev)
+		// forHash = append(forHash, ev)
 		forHashString = append(forHashString, string(ev.Serialize()))
-		if len(forHash) > e.Num {
+		if len(forHashString) > e.Num {
 
-			logger.GLogger.Info("len(forHash) > e.Num", len(forHash))
+			logger.GLogger.Info("len(forHash) > e.Num", len(forHashString))
 			hashGPU := HashStringsWithGPU(forHashString)
 			logger.GLogger.Info("hashGPU:", hashGPU[0])
 
@@ -124,6 +124,7 @@ func (e *EventMan) HashCalculate() {
 				}
 			}(hashGPU)
 
+			forHashString = []string{}
 		}
 
 	}
