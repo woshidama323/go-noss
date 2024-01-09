@@ -69,8 +69,8 @@ __global__ void sha256_cuda_simple(char** data,char** digest, int n) {
         if (i < n){
                 SHA256_CTX ctx;
                 sha256_init(&ctx);
-                sha256_update(&ctx, data[i], strlen(data[i]));
-                sha256_final(&ctx, digest[i]);
+                sha256_update(&ctx, reinterpret_cast<BYTE*>(data[i]), strlen(data[i]));
+                sha256_final(&ctx, reinterpret_cast<BYTE*>(digest[i]));
         }
 }
 
