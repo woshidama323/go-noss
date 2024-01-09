@@ -20,7 +20,8 @@ type EventMan struct {
 // func NewEventMan(nonceMan NonceMan, connectMan ConnectManager, preEventMan EventIDMan, num int) *EventMan {
 func NewEventMan(num int) *EventMan {
 
-	nonceMan := NewNonceMan(make(chan string))
+	nonChan := make(chan string, 1000)
+	nonceMan := NewNonceMan(nonChan)
 	connectMan := NewConnectManager()
 	preEventMan := NewEventIDMan()
 
@@ -29,6 +30,7 @@ func NewEventMan(num int) *EventMan {
 		ConnectMan: connectMan,
 		EventIDMan: preEventMan,
 		Num:        num,
+		NonceChan:  nonChan,
 	}
 }
 
