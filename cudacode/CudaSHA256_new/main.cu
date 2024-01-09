@@ -208,7 +208,7 @@ extern "C" {
     }
 }
 
-export "C" {
+extern "C" {
     void hashTest(char **strs, int num_strs, unsigned char **digests) {
         char** cpystrs;
         char** hashes;
