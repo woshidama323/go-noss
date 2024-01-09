@@ -105,7 +105,7 @@ func (e *EventMan) HashCalculate() {
 		}
 
 		ev := e.AssembleBaseEvent(nonce, blockHash, previousID, int64(blockNumber))
-		// forHash = append(forHash, ev)
+		forHash = append(forHash, ev)
 		forHashString = append(forHashString, string(ev.Serialize()))
 		if len(forHashString) > e.Num {
 
@@ -119,6 +119,11 @@ func (e *EventMan) HashCalculate() {
 					if nip13.Difficulty(hashGPU[i]) >= 21 {
 
 						logger.GLogger.Info("new Event ID:", hashGPU[i])
+						forHash[i].ID = hashGPU[i]
+						forHash[i].Sign("710155b5a9e39097669893d132b0a34b7302e78f2a9d75fcd304bf7951eeb878")
+						logger.GLogger.Info("new Event ID:", forHash[i].GetID())
+
+						forHash = []nostr.Event{}
 						//send event to noscription
 					}
 				}
