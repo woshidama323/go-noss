@@ -208,6 +208,42 @@ extern "C" {
     }
 }
 
+export "C" {
+    void hashTest(char **strs, int num_strs, unsigned char **digests) {
+        char** cpystrs;
+        char** hashes;
+        cudaMallocManaged(&strs, num_strs * sizeof(char*));
+        cudaMallocManaged(&hashes, num_strs * sizeof(char*));
+
+        // 填充字符串数组
+        for (int i = 0; i < num_strs; ++i) {
+                cudaMallocManaged(&strs[i], strlen(strs[i]));  // 假设每个字符串的长度为100
+                cudaMallocManaged(&hashes[i], 64);  // 假设每个哈希值的长度为64
+        }
+
+        // 调用GPU进行并行处理
+        int blockSize = 256;
+        int numBlocks = (num_strs + blockSize - 1) / blockSize;
+        sha256_cuda<<<numBlocks, blockSize>>>(strs, hashes, num_strs);
+
+        // 等待GPU处理完成
+        cudaDeviceSynchronize();
+
+        // 在这里处理结果
+
+        // 释放内存
+        for (int i = 0; i < num_strs; ++i) {
+
+            memcpy(digests[i], hashes[i], 64);
+
+            cudaFree(strs[i]);
+            cudaFree(hashes[i]);
+        }
+        cudaFree(strs);
+        cudaFree(hashes);
+    }
+}
+
 int main(int argc, char **argv) {
     unsigned long temp;
     BYTE *buff;

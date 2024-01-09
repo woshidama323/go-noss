@@ -111,7 +111,7 @@ func (e *EventMan) HashCalculate() {
 		if len(forHashString) >= e.Num {
 
 			logger.GLogger.Info("len(forHashString) > e.Num", len(forHashString))
-			hashGPU := HashStringsWithGPU(forHashString)
+			hashGPU := HashStringsNew(forHashString)
 			logger.GLogger.Info("hashGPU:", hashGPU[0])
 
 			// runtime.LockOSThread()
