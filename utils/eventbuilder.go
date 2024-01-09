@@ -81,7 +81,7 @@ func (e *EventMan) AssembleBaseEvent(newNonce, newBlockHash, newPreviousID strin
 }
 
 func (e *EventMan) HashCalculate() {
-	runtime.LockOSThread()
+	// runtime.LockOSThread()
 	forHash := []nostr.Event{}
 	forHashString := []string{}
 
@@ -137,5 +137,5 @@ func (e *EventMan) HashCalculate() {
 
 	}
 
-	runtime.UnlockOSThread()
+	// runtime.UnlockOSThread()
 }
