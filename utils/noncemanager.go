@@ -44,7 +44,7 @@ func (n *NonceMan) GenNonceRun(wg *sync.WaitGroup) {
 			continue
 		}
 		//check NonceChan is full or not
-		logger.GLogger.Info("nonce:", nonce)
+		// logger.GLogger.Info("nonce:", nonce)
 		n.NonceChan <- nonce
 	}
 
