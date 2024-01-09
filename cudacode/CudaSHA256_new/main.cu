@@ -168,7 +168,7 @@ extern "C" {
 	    memcpy(byte_str, strs[i], len);
             printf("checkpoint 13 \n");
             jobs[i] = JOB_init(byte_str, len, strs[i]);
-            printf("checkpoint 14 \n");
+            printf("checkpoint 14 -> %d->%s\n", i, strs[i]);
         }
 
         printf("checkpoint 2 \n");
