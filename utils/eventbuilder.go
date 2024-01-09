@@ -5,7 +5,6 @@ import (
 	"runtime"
 	"strconv"
 	"sync"
-	"time"
 
 	"github.com/nbd-wtf/go-nostr"
 	"github.com/nbd-wtf/go-nostr/nip13"
@@ -82,7 +81,7 @@ func (e *EventMan) AssembleBaseEvent(newNonce, newBlockHash, newPreviousID strin
 }
 
 func (e *EventMan) HashCalculate() {
-	runtime.LockOSThread()
+	// runtime.LockOSThread()
 	forHash := []nostr.Event{}
 	forHashString := []string{}
 
@@ -132,7 +131,7 @@ func (e *EventMan) HashCalculate() {
 				}
 			}
 
-			time.Sleep(3 * time.Second)
+			// time.Sleep(3 * time.Second)
 			// }(hashGPU)
 
 			forHashString = []string{}
