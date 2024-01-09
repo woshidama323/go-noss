@@ -62,6 +62,13 @@ __global__ void sha256_cuda(JOB ** jobs, int n) {
                 sha256_final(&ctx, jobs[i]->digest);
         }
 }
+__device__ int device_strlen(const char* str) {
+        int len = 0;
+        while (str[len] != '\0') {
+                len++;
+        }
+        return len;
+}
 
 __global__ void sha256_cuda_simple(char** data,char** digest, int n) {
         int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -74,13 +81,6 @@ __global__ void sha256_cuda_simple(char** data,char** digest, int n) {
         }
 }
 
-__device__ int device_strlen(const char* str) {
-        int len = 0;
-        while (str[len] != '\0') {
-                len++;
-        }
-        return len;
-}
 
 
 
