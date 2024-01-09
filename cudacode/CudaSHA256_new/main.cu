@@ -87,7 +87,7 @@ JOB * JOB_init(BYTE * data, long size, char * fname) {
                 j->digest[i] = 0xff;
         }
         // strcpy(j->fname, fname);
-        strncpy(j->fname, fname, size);
+        strncpy(j->fname, fname, strlen(j->fname));
         // j->fname[strlen(fname) - 1] = '\0'; // 确保字符串结尾
         return j;
 }
