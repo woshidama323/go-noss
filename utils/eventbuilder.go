@@ -2,6 +2,7 @@ package utils
 
 import (
 	"nostr/logger"
+	"strconv"
 	"sync"
 
 	"github.com/nbd-wtf/go-nostr"
@@ -72,7 +73,7 @@ func (e *EventMan) AssembleBaseEvent(newNonce, newBlockHash, newPreviousID strin
 	event.Tags = event.Tags.AppendUnique(nostr.Tag{"p", "9be107b0d7218c67b4954ee3e6bd9e4dba06ef937a93f684e42f730a0c3d053c"})
 	event.Tags = event.Tags.AppendUnique(nostr.Tag{"e", "51ed7939a984edee863bfbb2e66fdc80436b000a8ddca442d83e6a2bf1636a95", WSURL, "root"})
 	event.Tags = event.Tags.AppendUnique(nostr.Tag{"e", newPreviousID, WSURL, "reply"})
-	event.Tags = event.Tags.AppendUnique(nostr.Tag{"seq_witness", string(blockNumber), newBlockHash})
+	event.Tags = event.Tags.AppendUnique(nostr.Tag{"seq_witness", strconv.FormatInt(blockNumber, 10), newBlockHash})
 	event.Tags = event.Tags.AppendUnique(nostr.Tag{"nonce", newNonce, "21"})
 
 	return event
