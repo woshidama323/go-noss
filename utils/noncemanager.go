@@ -38,12 +38,13 @@ func (n *NonceMan) GenNonceRun(wg *sync.WaitGroup) {
 
 		nonce, err := n.GenerateRandomString(10)
 		if err != nil {
-			// panic(err)
+
 			logger.GLogger.Info("generate random string error:", err)
 			time.Sleep(1 * time.Second)
 			continue
 		}
 		//check NonceChan is full or not
+		logger.GLogger.Info("nonce:", nonce)
 		n.NonceChan <- nonce
 	}
 
