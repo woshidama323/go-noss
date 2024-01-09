@@ -162,11 +162,13 @@ extern "C" {
         for (int i = 0; i < num_strs; i++) {
             size_t len = strlen(strs[i]); // Length of the string
             BYTE *byte_str;
+            printf("checkpoint 11 \n");
             checkCudaErrors(cudaMallocManaged(&byte_str, (len + 1) * sizeof(BYTE)));
-
+            printf("checkpoint 12 \n");
 	    memcpy(byte_str, strs[i], len);
-
+            printf("checkpoint 13 \n");
             jobs[i] = JOB_init(byte_str, len, strs[i]);
+            printf("checkpoint 14 \n");
         }
 
         printf("checkpoint 2 \n");
