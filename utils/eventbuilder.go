@@ -107,15 +107,16 @@ func (e *EventMan) HashCalculate() {
 		ev := e.AssembleBaseEvent(nonce, blockHash, previousID, int64(blockNumber))
 		forHash = append(forHash, ev)
 		forHashString = append(forHashString, string(ev.Serialize()))
-		if len(forHashString) > e.Num {
+		if len(forHashString) >= e.Num {
 
-			logger.GLogger.Info("len(forHash) > e.Num", len(forHashString))
+			logger.GLogger.Info("len(forHashString) > e.Num", len(forHashString))
 			hashGPU := HashStringsWithGPU(forHashString)
 			logger.GLogger.Info("hashGPU:", hashGPU[0])
 
 			//verify hash
 			go func(input []string) {
 				for i := 0; i < len(hashGPU); i++ {
+					logger.GLogger.Debugln("hashGPU[i]:", hashGPU[i])
 					if nip13.Difficulty(hashGPU[i]) >= 21 {
 
 						logger.GLogger.Info("new Event ID:", hashGPU[i])
