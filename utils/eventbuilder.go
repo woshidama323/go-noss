@@ -47,7 +47,7 @@ func (e *EventMan) Run() {
 
 	e.ConnectMan.Connect()
 
-	e.ConnectMan.GetBlockInfo(&wg)
+	go e.ConnectMan.GetBlockInfo(&wg)
 
 	wg.Add(1)
 	go e.EventIDMan.GetPreviousID(&wg, "wss://report-worker-2.noscription.org")
