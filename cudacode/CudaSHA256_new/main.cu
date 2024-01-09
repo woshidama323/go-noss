@@ -158,43 +158,43 @@ extern "C" {
     void hashStrings(char **strs, int num_strs, unsigned char **digests) {
         JOB **jobs;
         checkCudaErrors(cudaMallocManaged(&jobs, num_strs * sizeof(JOB *)));
-        printf("checkpoint 1 \n");
+        //printf("checkpoint 1 \n");
         for (int i = 0; i < num_strs; i++) {
             size_t len = strlen(strs[i]); // Length of the string
             BYTE *byte_str;
-            printf("checkpoint 11 \n");
+            //printf("checkpoint 11 \n");
             checkCudaErrors(cudaMallocManaged(&byte_str, (len + 1) * sizeof(BYTE)));
-            printf("checkpoint 12 \n");
+        //     //printf("checkpoint 12 \n");
 	    memcpy(byte_str, strs[i], len);
-            printf("checkpoint 13 \n");
+        //     //printf("checkpoint 13 \n");
             jobs[i] = JOB_init(byte_str, len, strs[i]);
-            printf("checkpoint 14 -> %d->%s\n", i, strs[i]);
+        //     //printf("checkpoint 14 -> %d->%s\n", i, strs[i]);
             cudaFree(byte_str); 
         }
 
-        printf("checkpoint 2 \n");
+        //printf("checkpoint 2 \n");
         pre_sha256();  // Preprocessing, if required
-        printf("checkpoint 3 \n");
+        //printf("checkpoint 3 \n");
         runJobs(jobs, num_strs); // Run jobs
-        printf("checkpoint 4 \n");
+        //printf("checkpoint 4 \n");
         cudaDeviceSynchronize(); // Synchronize
-        printf("checkpoint 5 \n");
+        //printf("checkpoint 5 \n");
         // Copy the results to digests
         for (int i = 0; i < num_strs; i++) {
              checkCudaErrors(cudaMallocManaged(&(digests[i]), 64 * sizeof(unsigned char))); // Assuming 64 bytes for SHA-256
              memset(digests[i], 0, 64 * sizeof(unsigned char));
 	     memcpy(digests[i], jobs[i]->digest, 64);
 	}
-        printf("checkpoint 6 \n");
+        //printf("checkpoint 6 \n");
 
         // Cleanup
         for (int i = 0; i < num_strs; i++) {
             cudaFree(jobs[i]->data);
             cudaFree(jobs[i]);
         }
-        printf("checkpoint 7 \n");
+        //printf("checkpoint 7 \n");
         cudaFree(jobs);
-        printf("checkpoint 8 \n");
+        //printf("checkpoint 8 \n");
 	// for (int i = 0; i < num_strs; i++) {
         //     printf("%s", digests[i]);
         //     for (int j = 0; j < 64; j++) { // 假设每个哈希值是64字节
