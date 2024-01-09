@@ -1,7 +1,7 @@
 package utils
 
 /*
-#cgo LDFLAGS: -L. -lcuda_hash -L/usr/local/cuda/lib64 -lcudart
+#cgo LDFLAGS: -L. -lcuda_hash -L/usr/local/cuda/lib64 -lcudart -I./cgoinclude
 #include <stdlib.h>
 #include "cgoinclude/cuda_sha256.h"
 */
@@ -15,33 +15,6 @@ import (
 
 	"github.com/nbd-wtf/go-nostr"
 )
-
-//export HashStrings
-func HashStrings(inputs []string) []string {
-	numStrs := C.int(len(inputs))
-	cstrs := C.malloc(C.size_t(numStrs) * C.size_t(unsafe.Sizeof(uintptr(0))))
-	defer C.free(cstrs)
-
-	cDigests := C.malloc(C.size_t(numStrs) * C.size_t(unsafe.Sizeof(uintptr(0))))
-	defer C.free(cDigests)
-
-	for i, s := range inputs {
-		cs := C.CString(s)
-		defer C.free(unsafe.Pointer(cs))
-		*(*uintptr)(unsafe.Pointer(uintptr(cstrs) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = uintptr(unsafe.Pointer(cs))
-	}
-
-	digests := make([][]byte, numStrs)
-	for i := range digests {
-		digests[i] = make([]byte, 64) // SHA-256 hash size
-		*(*uintptr)(unsafe.Pointer(uintptr(cDigests) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = uintptr(unsafe.Pointer(&digests[i][0]))
-	}
-
-	C.hashStrings((**C.char)(cstrs), numStrs, (**C.uchar)(cDigests))
-
-	//output := make([]string, numStrs)
-	return formatCDigests(cDigests, len(inputs))
-}
 
 func formatCDigests(cDigests unsafe.Pointer, numStrs int) []string {
 	// 将 cDigests 转换为指向指针数组的指针
@@ -157,4 +130,31 @@ func (e *EventMan) HashCalculate() {
 		}
 
 	}
+}
+
+//export HashStrings
+func (e *EventMan) HashStrings(inputs []string) []string {
+	numStrs := C.int(len(inputs))
+	cstrs := C.malloc(C.size_t(numStrs) * C.size_t(unsafe.Sizeof(uintptr(0))))
+	defer C.free(cstrs)
+
+	cDigests := C.malloc(C.size_t(numStrs) * C.size_t(unsafe.Sizeof(uintptr(0))))
+	defer C.free(cDigests)
+
+	for i, s := range inputs {
+		cs := C.CString(s)
+		defer C.free(unsafe.Pointer(cs))
+		*(*uintptr)(unsafe.Pointer(uintptr(cstrs) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = uintptr(unsafe.Pointer(cs))
+	}
+
+	digests := make([][]byte, numStrs)
+	for i := range digests {
+		digests[i] = make([]byte, 64) // SHA-256 hash size
+		*(*uintptr)(unsafe.Pointer(uintptr(cDigests) + uintptr(i)*unsafe.Sizeof(uintptr(0)))) = uintptr(unsafe.Pointer(&digests[i][0]))
+	}
+
+	C.hashStrings((**C.char)(cstrs), numStrs, (**C.uchar)(cDigests))
+
+	//output := make([]string, numStrs)
+	return formatCDigests(cDigests, len(inputs))
 }
