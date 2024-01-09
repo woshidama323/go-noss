@@ -69,16 +69,20 @@ __global__ void sha256_cuda_simple(char** data,char** digest, int n) {
         if (i < n){
                 SHA256_CTX ctx;
                 sha256_init(&ctx);
-                __device__ int device_strlen(const char* str) {
-                        int len = 0;
-                        while (str[len] != '\0') {
-                                len++;
-                        }
-                        return len;
-                }
+                sha256_update(&ctx, reinterpret_cast<BYTE*>(data[i]), device_strlen(data[i]));
                 sha256_final(&ctx, reinterpret_cast<BYTE*>(digest[i]));
         }
 }
+
+__device__ int device_strlen(const char* str) {
+        int len = 0;
+        while (str[len] != '\0') {
+                len++;
+        }
+        return len;
+}
+
+
 
 void pre_sha256() {
         // compy symbols
