@@ -110,9 +110,9 @@ func (e *EventMan) HashCalculate() {
 		forHashString = append(forHashString, string(ev.Serialize()))
 		if len(forHashString) >= e.Num {
 
-			logger.GLogger.Info("len(forHashString) > e.Num", len(forHashString))
+			logger.GLogger.Debugln("len(forHashString) > e.Num", len(forHashString))
 			hashGPU := HashStringsNew(forHashString)
-			logger.GLogger.Info("hashGPU:", hashGPU[0])
+			logger.GLogger.Debugln("hashGPU:", hashGPU[0])
 
 			// runtime.LockOSThread()
 			//verify hash

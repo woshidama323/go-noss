@@ -16,6 +16,7 @@ func init() {
 }
 
 var GLogger = createCustomLogger()
+var LogLevel = logrus.InfoLevel
 
 func createCustomLogger() *logrus.Logger {
 	logger := logrus.New()
@@ -24,7 +25,13 @@ func createCustomLogger() *logrus.Logger {
 		TimestampFormat: "2006-01-02 15:04:05",
 		ForceColors:     true,
 	})
+	logger.SetLevel(LogLevel)
 	return logger
+}
+
+// UpdateLogLevel updates the log level dynamically
+func UpdateLogLevel(level logrus.Level) {
+	GLogger.SetLevel(level)
 }
 
 // var loggers = make(map[string]*logrus.Logger)

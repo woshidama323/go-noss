@@ -181,8 +181,18 @@ var CreateEventCmd = &cli.Command{
 			Usage: "num times",
 			Value: 1000,
 		},
+		&cli.StringFlag{
+			Name:       "loglevel",
+			Usage:      "log level",
+			Value:      "info",
+			HasBeenSet: false,
+		},
 	},
 	Action: func(cctx *cli.Context) error {
+
+		if cctx.String("loglevel") == "debug" {
+			logrus.SetLevel(logrus.DebugLevel)
+		}
 
 		eMan := utils.NewEventMan(cctx.Int("num"))
 
