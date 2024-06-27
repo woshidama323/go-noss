@@ -25,6 +25,7 @@ int main() {
         cudaMallocManaged(&strs[i], 100);  // 假设每个字符串的长度为100
         cudaMallocManaged(&hashes[i], 64);  // 假设每个哈希值的长度为64
         // 在这里填充strs[i]
+        
     }
 
     // 调用GPU进行并行处理

@@ -13,7 +13,7 @@ type ChanType struct {
 	Data     any
 }
 
-var commonchan = make(chan ChanType, 1000)
+var Commonchan = make(chan ChanType, 1000)
 
 func GenerateRandomString(length int) (string, error) {
 	charset := "abcdefghijklmnopqrstuvwxyz0123456789" // 字符集
